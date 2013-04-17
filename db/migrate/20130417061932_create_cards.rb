@@ -1,6 +1,6 @@
 class CreateCards < ActiveRecord::Migration
   def change
-    create_table :cards do |t|
+    create_table :cards, primary_key: :uuid do |t|
       t.text :content
       t.references :deck, index: true
 

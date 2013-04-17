@@ -13,6 +13,9 @@
 
 ActiveRecord::Schema.define(version: 20130417061932) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "books", id: false, force: true do |t|
     t.string   "uuid"
     t.string   "title"
@@ -20,16 +23,18 @@ ActiveRecord::Schema.define(version: 20130417061932) do
     t.datetime "updated_at"
   end
 
-  create_table "cards", force: true do |t|
+  add_index "books", ["uuid"], name: "index_books_on_uuid", unique: true, using: :btree
+
+  create_table "cards", primary_key: "uuid", force: true do |t|
     t.text     "content"
     t.integer  "deck_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "cards", ["deck_id"], name: "index_cards_on_deck_id"
+  add_index "cards", ["deck_id"], name: "index_cards_on_deck_id", using: :btree
 
-  create_table "decks", force: true do |t|
+  create_table "decks", primary_key: "uuid", force: true do |t|
     t.string   "title"
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -42,5 +47,9 @@ ActiveRecord::Schema.define(version: 20130417061932) do
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "pages", ["book_id"], name: "index_pages_on_book_id", using: :btree
+  add_index "pages", ["uuid", "book_id"], name: "index_pages_on_uuid_and_book_id", unique: true, using: :btree
+  add_index "pages", ["uuid"], name: "index_pages_on_uuid", unique: true, using: :btree
 
 end

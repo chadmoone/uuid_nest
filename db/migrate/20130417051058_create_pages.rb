@@ -7,6 +7,8 @@ class CreatePages < ActiveRecord::Migration
 
       t.timestamps
     end
-    
+    add_index :pages, :uuid, unique: true
+    add_index :pages, :book_id
+    add_index(:pages, [:uuid, :book_id], :unique => true)
   end
 end
