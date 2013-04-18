@@ -34,6 +34,11 @@ end
 
 
 def set_up
+  r1 = Card.all.sample
+  r2 = Card.find(23)
+  r3 = Card.all.sample
+
+
   puts "\n\n---create deck:---"
   d = Deck.create(title: "My Deck")
 
@@ -49,10 +54,18 @@ def set_up
   p2 = Page.create({book_id: b.id, content: "Sit Dolor."})
 
   puts "\n\n---update deck:---"
-  d.update({title: "New Deck", cards_attributes: [{id: c1.id, content: "Hello"}, {id: c2.id, content: "World!"}]})
+  begin
+    d.update!({title: "New Deck", cards_attributes: [{uuid: c1.id, content: "Hello"}, {uuid: c2.id, content: "World!"}]})
+  rescue Exception => e
+    puts e.backtrace
+  end
   
   puts "\n\n---update book:---"
-  b.update({title: "New Book", pages_attributes: [{uuid: p1.id, content: "Hello"}, {uuid: p2.id, content: "World!"}]})
+  begin
+    b.update!({title: "New Book", pages_attributes: [{uuid: p1.id, content: "Hello"}, {uuid: p2.id, content: "World!"}]})
+  rescue Exception => e
+    puts e.backtrace
+  end
 
   puts "\n\n---refresh cards:---"
   c1.reload

@@ -1,7 +1,7 @@
 module UUID extend ActiveSupport::Concern
   included do
     self.primary_key = "uuid"
-    validates :uuid, uniqueness: true
+    # validates :uuid, uniqueness: true
     before_create :build_uuid
 
     def build_uuid

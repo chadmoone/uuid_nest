@@ -1,4 +1,5 @@
 class Deck < ActiveRecord::Base
-  has_many :cards, autosave: true
+  include Tracer
+  has_many :cards, autosave: true, primary_key: :uuid
   accepts_nested_attributes_for :cards, allow_destroy: true
 end
