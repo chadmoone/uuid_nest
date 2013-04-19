@@ -68,23 +68,41 @@ def set_up
   end
 
   puts "\n\n---refresh cards:---"
-  c1.reload
-  c2.reload
-  puts "\n\n---"
-  puts "c1.valid? #{c1.valid?}"
-  puts "c2.valid? #{c2.valid?}"
-  puts c1.content
-  puts c2.content
+  c1.reload && c2.reload
+  puts "c1(#{c1.valid?}): #{c1.content}"
+  puts "c2(#{c2.valid?}): #{c2.content}"
   puts "---\n\n"
 
   puts "\n\n---refresh pages:---"
-  p1.reload
-  p2.reload
-  puts "\n\n---"
-  puts "p1.valid? #{p1.valid?}"
-  puts "p2.valid? #{p2.valid?}"
-  puts p1.content
-  puts p2.content
+  p1.reload && p2.reload
+  puts "p1(#{p1.valid?}): #{p1.content}"
+  puts "p2(#{p2.valid?}): #{p2.content}"
+  puts "---\n\n"
+
+
+  puts "\n\n---delete card:---"
+  begin
+    d.update!({title: "Smaller Deck", cards_attributes: [{uuid: c1.id, _destroy: true}]})
+  rescue Exception => e
+    puts e.backtrace
+  end
+  
+  puts "\n\n---delete page:---"
+  begin
+    b.update!({title: "Shorter Book", pages_attributes: [{uuid: p1.id, _destroy: true}]})
+  rescue Exception => e
+    puts e.backtrace
+  end
+
+  puts "\n\n---refresh deck:---"
+  d.reload
+  puts "d.cards(#{d.cards.count}): #{d.cards.inspect}"
+  puts "---\n\n"
+
+  puts "\n\n---refresh book:---"
+  b.reload
+  puts "b.pages(#{b.pages.count}): #{b.pages.inspect}"
+  puts "---\n\n"
 
 end
 

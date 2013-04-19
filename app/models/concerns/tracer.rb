@@ -36,15 +36,15 @@ module Tracer extend ActiveSupport::Concern
 
     after_initialize do |o|
       send_log "#{o.class}\n  -after_initialize(#{o.id}) - new_record? #{self.new_record?}", RED, YELLOW_BG
-      puts "------\n"
-      send_log Thread.current.backtrace.join("\n")
+      # puts "------\n"
+      # send_log Thread.current.backtrace.join("\n")
     end
    
     after_find do |o|
       send_log "#{o.class}\n  -after_find(#{o.id}) - new_record? #{self.new_record?}", RED, YELLOW_BG
 
-      puts "------\n"
-      send_log Thread.current.backtrace.join("\n")
+      # puts "------\n"
+      # send_log Thread.current.backtrace.join("\n")
     end
 
 
@@ -59,36 +59,25 @@ module Tracer extend ActiveSupport::Concern
     end
 
     def assign_nested_attributes_for_collection_association(association_name, attributes_collection)
-      send_log "#{self.class}(#{self.id})\n  -assign_nested_attributes_for_collection_association\n  -association_name:#{association_name}, attributes_collection:#{attributes_collection.inspect}\n  - new_record? #{self.new_record?}", BLUE, WHITE_BG
-      
-      
       options = self.nested_attributes_options[association_name]
-      send_log "  options:#{options}", BLACK, MAGENTA_BG
-
+      
       unless attributes_collection.is_a?(Hash) || attributes_collection.is_a?(Array)
         raise ArgumentError, "Hash or Array expected, got #{attributes_collection.class.name} (#{attributes_collection.inspect})"
       end
 
       check_record_limit!(options[:limit], attributes_collection)
 
+      association = association(association_name)
+      pk_name = association.options.has_key?(:primary_key) ? association.options[:primary_key].to_s : 'id'
+
       if attributes_collection.is_a? Hash
         keys = attributes_collection.keys
-        attributes_collection = if keys.include?('id') || keys.include?(:id)
+        attributes_collection = if keys.include?(pk_name) || keys.include?(pk_name.to_sym)
           [attributes_collection]
         else
           attributes_collection.values
         end
       end
-
-      association = association(association_name)
-      send_log "  association:#{association.inspect}", BLACK, MAGENTA_BG
-      puts association.options[:primary_key]
-      puts association.options.has_key? :primary_key
-      
-
-      pk_name = association.options.has_key?(:primary_key) ? association.options[:primary_key].to_s : 'id'
-      
-      
 
       existing_records = if association.loaded?
         association.target
@@ -124,19 +113,63 @@ module Tracer extend ActiveSupport::Concern
           raise_nested_attributes_record_not_found!(association_name, attributes[pk_name])
         end
       end
-
-      super
     end
 
-    
+    # NEEDED 
 
-    def create_or_update
-      # raise ReadOnlyRecord if readonly?
-      # result = new_record? ? create_record : update_record
-      # result != false
-      send_log "#{self.class}(#{self.id})\n  -create_or_update - new_record? #{self.new_record?}", BLUE, WHITE_BG
-      super
-    end
+    # def create_or_update
+    #   # raise ReadOnlyRecord if readonly?
+    #   # result = new_record? ? create_record : update_record
+    #   # result != false
+    #   send_log "#{self.class}(#{self.id})\n  -create_or_update - new_record? #{self.new_record?}", BLUE, WHITE_BG
+
+    #   debugger
+
+    #   super
+    # end
+
+
+    # # Updates the associated record with values matching those of the instance attributes.
+    # # Returns the number of affected rows.
+    # def update_record(attribute_names = @attributes.keys)
+    #   debugger
+    #   super
+    #   # attributes_with_values = arel_attributes_with_values_for_update(attribute_names)
+    #   # if attributes_with_values.empty?
+    #   #   0
+    #   # else
+    #   #   klass = self.class
+    #   #   column_hash = klass.connection.schema_cache.columns_hash klass.table_name
+    #   #   db_columns_with_values = attributes_with_values.map { |attr,value|
+    #   #     real_column = column_hash[attr.name]
+    #   #     [real_column, value]
+    #   #   }
+    #   #   bind_attrs = attributes_with_values.dup
+    #   #   bind_attrs.keys.each_with_index do |column, i|
+    #   #     real_column = db_columns_with_values[i].first
+    #   #     bind_attrs[column] = klass.connection.substitute_at(real_column, i)
+    #   #   end
+    #   #   stmt = klass.unscoped.where(klass.arel_table[klass.primary_key].eq(id_was || id)).arel.compile_update(bind_attrs)
+    #   #   klass.connection.update stmt, 'SQL', db_columns_with_values
+    #   # end
+    # end
+
+    # # Creates a record with values matching those of the instance attributes
+    # # and returns its id.
+    # def update_record(*args)
+    #   debugger
+    #   super
+    #   # attributes_values = arel_attributes_with_values_for_create(attribute_names)
+
+    #   # new_id = self.class.unscoped.insert attributes_values
+    #   # self.id ||= new_id if self.class.primary_key
+
+    #   # @new_record = false
+    #   # id
+    # end
+
+
+
 
 
     def initialize(attributes = nil)
